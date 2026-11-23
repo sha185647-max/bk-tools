@@ -942,64 +942,150 @@ get("contactForm").addEventListener("submit", function (event) {
     throw new Error("Add a camera or image input to the QR Scanner section to scan codes.");
   });
 
-  // Stopwatch
-  const stopwatch = section("stopwatch");
-  if (stopwatch) {
-    const btns = Array.from(stopwatch.querySelectorAll("button"));
-    const out = outputFor(stopwatch);
-    if (btns.length >= 2 && out) {
-      let started = 0, elapsed = 0, interval = null;
-      const render = () => {
-        const total = elapsed + (interval ? Date.now() - started : 0);
-        const centis = Math.floor(total / 10) % 100;
-        const sec = Math.floor(total / 1000) % 60;
-        const min = Math.floor(total / 60000) % 60;
-        const hr = Math.floor(total / 3600000);
-        text(out, [hr, min, sec].map(n => String(n).padStart(2, "0")).join(":") + "." + String(centis).padStart(2, "0"));
-      };
-      btns[0].addEventListener("click", () => {
-        if (interval) return;
-        started = Date.now();
-        interval = setInterval(render, 50);
-      });
-      if (btns[1]) btns[1].addEventListener("click", () => {
-        if (interval) { elapsed += Date.now() - started; clearInterval(interval); interval = null; render(); }
-      });
-      if (btns[2]) btns[2].addEventListener("click", () => {
-        clearInterval(interval); interval = null; elapsed = 0; render();
-      });
-      render();
-    }
+  // Stopwatch - use the exact IDs from index.html.
+  // Do not use outputFor(): stopwatchDisplay is a <p> without aria-live.
+  const swDisplay = byId("stopwatchDisplay");
+  const swStart = byId("stopwatchStart");
+  const swStop = byId("stopwatchStop");
+  const swReset = byId("stopwatchReset");
+
+  if (swDisplay && swStart && swStop && swReset) {
+    let swStartedAt = 0;
+    let swElapsed = 0;
+    let swInterval = null;
+
+    const renderStopwatch = () => {
+      const elapsed = swElapsed + (swInterval ? Date.now() - swStartedAt : 0);
+      const totalCentiseconds = Math.floor(elapsed / 10);
+      const centiseconds = totalCentiseconds % 100;
+      const totalSeconds = Math.floor(totalCentiseconds / 100);
+      const seconds = totalSeconds % 60;
+      const minutes = Math.floor(totalSeconds / 60) % 60;
+      const hours = Math.floor(totalSeconds / 3600);
+      swDisplay.textContent =
+        [hours, minutes, seconds].map(n => String(n).padStart(2, "0")).join(":") +
+        "." + String(centiseconds).padStart(2, "0");
+    };
+
+    swStart.addEventListener("click", () => {
+      if (swInterval !== null) return;
+      swStartedAt = Date.now();
+      swInterval = window.setInterval(renderStopwatch, 30);
+      renderStopwatch();
+    });
+
+    swStop.addEventListener("click", () => {
+      if (swInterval === null) return;
+      swElapsed += Date.now() - swStartedAt;
+      window.clearInterval(swInterval);
+      swInterval = null;
+      renderStopwatch();
+    });
+
+    swReset.addEventListener("click", () => {
+      if (swInterval !== null) window.clearInterval(swInterval);
+      swInterval = null;
+      swStartedAt = 0;
+      swElapsed = 0;
+      renderStopwatch();
+    });
+
+    renderStopwatch();
   }
 
-  // Countdown Timer: first number input is minutes; second (if present) is seconds.
-  const countdown = section("countdown");
-  if (countdown) {
-    const nums = Array.from(countdown.querySelectorAll('input[type="number"]'));
-    const btns = Array.from(countdown.querySelectorAll("button"));
-    const out = outputFor(countdown);
-    if (nums.length && btns.length && out) {
-      let remaining = 0, interval = null;
-      const render = () => {
-        const m = Math.floor(remaining / 60), s = remaining % 60;
-        text(out, String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0"));
-      };
-      btns[0].addEventListener("click", () => {
-        clearInterval(interval);
-        remaining = Math.max(0, Number(nums[0].value) || 0) * 60 +
-          (nums[1] ? Math.max(0, Number(nums[1].value) || 0) : 0);
-        if (!remaining) { text(out, "Enter a time greater than zero."); return; }
-        render();
-        interval = setInterval(() => {
-          remaining--;
-          render();
-          if (remaining <= 0) { clearInterval(interval); interval = null; text(out, "Time is up!"); }
-        }, 1000);
-      });
-      if (btns[1]) btns[1].addEventListener("click", () => {
-        clearInterval(interval); interval = null; remaining = 0; render();
-      });
-    }
+  // Countdown Timer - Start, pause with Stop, and reset to 00:00.
+  const cdMinutes = byId("countdownMinutes");
+  const cdSeconds = byId("countdownSeconds");
+  const cdDisplay = byId("countdownDisplay");
+  const cdStart = byId("countdownStart");
+  const cdStop = byId("countdownStop");
+  const cdReset = byId("countdownReset");
+
+  if (cdMinutes && cdSeconds && cdDisplay && cdStart && cdStop && cdReset) {
+    let cdRemaining = 0;
+    let cdEndsAt = 0;
+    let cdInterval = null;
+
+    const renderCountdown = () => {
+      const minutes = Math.floor(cdRemaining / 60);
+      const seconds = cdRemaining % 60;
+      cdDisplay.textContent =
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0");
+    };
+
+    const pauseCountdown = () => {
+      if (cdInterval !== null) {
+        cdRemaining = Math.max(0, Math.ceil((cdEndsAt - Date.now()) / 1000));
+        window.clearInterval(cdInterval);
+        cdInterval = null;
+      }
+      renderCountdown();
+    };
+
+    cdStart.addEventListener("click", () => {
+      // If already running, don't start a second interval.
+      if (cdInterval !== null) return;
+
+      // If paused with time remaining, resume. Otherwise read the inputs.
+      if (cdRemaining <= 0) {
+        const mins = Number(cdMinutes.value);
+        const secs = Number(cdSeconds.value);
+
+        if (
+          cdMinutes.value.trim() === "" && cdSeconds.value.trim() === ""
+        ) {
+          cdDisplay.textContent = "Enter minutes or seconds.";
+          return;
+        }
+        if (
+          !Number.isFinite(mins) || !Number.isFinite(secs) ||
+          mins < 0 || secs < 0 || !Number.isInteger(mins) ||
+          !Number.isInteger(secs) || secs > 59
+        ) {
+          cdDisplay.textContent = "Enter valid minutes and seconds (0â€“59 seconds).";
+          return;
+        }
+
+        cdRemaining = mins * 60 + secs;
+      }
+
+      if (cdRemaining <= 0) {
+        cdDisplay.textContent = "Enter a time greater than zero.";
+        return;
+      }
+
+      cdEndsAt = Date.now() + cdRemaining * 1000;
+      renderCountdown();
+
+      cdInterval = window.setInterval(() => {
+        cdRemaining = Math.max(0, Math.ceil((cdEndsAt - Date.now()) / 1000));
+        renderCountdown();
+
+        if (cdRemaining <= 0) {
+          window.clearInterval(cdInterval);
+          cdInterval = null;
+          cdDisplay.textContent = "Time is up!";
+          try {
+            if ("Notification" in window && Notification.permission === "granted") {
+              new Notification("BK TOOLS", { body: "Your countdown is complete!" });
+            }
+          } catch (_) {}
+        }
+      }, 200);
+    });
+
+    cdStop.addEventListener("click", pauseCountdown);
+
+    cdReset.addEventListener("click", () => {
+      if (cdInterval !== null) window.clearInterval(cdInterval);
+      cdInterval = null;
+      cdRemaining = 0;
+      cdEndsAt = 0;
+      cdDisplay.textContent = "00:00";
+    });
+
+    renderCountdown();
   }
 
   console.log("BK TOOLS: additional tool handlers initialized.");
