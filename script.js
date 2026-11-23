@@ -558,7 +558,7 @@ get("resizeFile").addEventListener("change", async function () {
     resizeOriginalImage = await loadImageFromFile(file);
     get("resizeWidth").value = resizeOriginalImage.naturalWidth;
     get("resizeHeight").value = resizeOriginalImage.naturalHeight;
-    show("resizeInfo", "Original size: " + resizeOriginalImage.naturalWidth + " × " + resizeOriginalImage.naturalHeight + " px");
+    show("resizeInfo", "Original size: " + resizeOriginalImage.naturalWidth + " Ã— " + resizeOriginalImage.naturalHeight + " px");
   } catch (error) {
     resizeOriginalImage = null;
     show("resizeInfo", error.message);
@@ -610,7 +610,7 @@ get("resizeBtn").addEventListener("click", async function () {
 
     const blob = await canvasToBlob(canvas, "image/png");
     setDownloadLink("resizeDownload", blob, "bk-resized-image.png");
-    show("resizeInfo", "Image resized successfully: " + width + " × " + height + " px.");
+    show("resizeInfo", "Image resized successfully: " + width + " Ã— " + height + " px.");
   } catch (error) {
     show("resizeInfo", error.message || "Could not resize image.");
   } finally {
@@ -631,3 +631,377 @@ get("contactForm").addEventListener("submit", function (event) {
   const url = "https://wa.me/923177459765?text=" + encodeURIComponent(text);
   window.open(url, "_blank", "noopener,noreferrer");
 });
+
+/* =========================================================
+   BK TOOLS - ADDITIONAL TOOLS
+   Existing 11 tools above are preserved.
+   This section adds functionality for the new tool sections.
+========================================================= */
+(function () {
+  "use strict";
+
+  const byId = id => document.getElementById(id);
+  const section = id => byId(id);
+  const text = (el, value) => { if (el) el.textContent = value; };
+  const first = (root, selectors) => {
+    for (const selector of selectors) {
+      const found = root.querySelector(selector);
+      if (found) return found;
+    }
+    return null;
+  };
+  const controls = root => Array.from(root.querySelectorAll("input, textarea, select"));
+  const outputFor = root => first(root, [
+    "[id$='Result']", "[id$='Info']", "[id$='Message']",
+    ".result", ".tool-result", "[aria-live='polite']"
+  ]);
+  const buttonFor = root => first(root, ["button", "input[type='button']", "input[type='submit']"]);
+  const downloadBlob = (blob, filename, label) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.textContent = label || ("Download " + filename);
+    a.className = "download-link";
+    a.style.display = "inline-block";
+    a.style.marginTop = "10px";
+    return a;
+  };
+  const attach = (id, handler) => {
+    const root = section(id);
+    if (!root) return;
+    const button = buttonFor(root);
+    const out = outputFor(root);
+    if (!button || !out) return;
+    button.addEventListener("click", async () => {
+      try {
+        out.replaceChildren();
+        const result = await handler(root, controls(root), out);
+        if (result instanceof Node) out.appendChild(result);
+        else if (result !== undefined && result !== null) text(out, String(result));
+      } catch (err) {
+        text(out, err && err.message ? err.message : "Something went wrong. Please try again.");
+      }
+    });
+  };
+  const fileInput = root => root.querySelector("input[type='file']");
+  const textInput = root => first(root, ["textarea", "input[type='text']", "input:not([type])"]);
+  const selectValue = (root, fallback) => {
+    const s = root.querySelector("select");
+    return s ? s.value : fallback;
+  };
+  const loadImage = file => new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith("image/")) return reject(new Error("Please choose a valid image."));
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Could not open this image.")); };
+    img.src = url;
+  });
+  const canvasBlob = (canvas, type, quality) => new Promise((resolve, reject) => {
+    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not create the output file.")), type, quality);
+  });
+
+  // Case Converter
+  attach("case-converter", root => {
+    const input = textInput(root);
+    if (!input) throw new Error("Text input is missing in the Case Converter section.");
+    const mode = selectValue(root, "upper").toLowerCase();
+    const value = input.value;
+    const converted = ({
+      upper: () => value.toUpperCase(),
+      uppercase: () => value.toUpperCase(),
+      lower: () => value.toLowerCase(),
+      lowercase: () => value.toLowerCase(),
+      title: () => value.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
+      "title case": () => value.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
+      sentence: () => value.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, c => c.toUpperCase())
+    }[mode] || (() => value.toUpperCase()))();
+    return converted || "(No text entered)";
+  });
+
+  // Text Reverser
+  attach("text-reverser", root => {
+    const input = textInput(root);
+    if (!input) throw new Error("Text input is missing.");
+    return Array.from(input.value).reverse().join("");
+  });
+
+  // Duplicate Line Remover
+  attach("duplicate-remover", root => {
+    const input = textInput(root);
+    if (!input) throw new Error("Text input is missing.");
+    const lines = input.value.split(/\r?\n/);
+    const seen = new Set();
+    return lines.filter(line => {
+      const key = line.trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).join("\n");
+  });
+
+  // Lorem Ipsum Generator
+  attach("lorem-generator", root => {
+    const input = root.querySelector("input[type='number']") || textInput(root);
+    const count = Math.max(1, Math.min(50, Number(input && input.value) || 1));
+    const paragraph = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere, erat at interdum consequat, neque lorem tincidunt ipsum, vitae facilisis justo erat sed nibh.";
+    return Array.from({ length: count }, () => paragraph).join("\n\n");
+  });
+
+  // Base64 encoder / decoder
+  attach("base64-tool", root => {
+    const input = textInput(root);
+    if (!input) throw new Error("Text input is missing.");
+    const mode = selectValue(root, "encode").toLowerCase();
+    if (mode.includes("decode")) {
+      try {
+        const binary = atob(input.value.trim());
+        const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+        return new TextDecoder().decode(bytes);
+      } catch (_) {
+        throw new Error("Invalid Base64 text.");
+      }
+    }
+    const bytes = new TextEncoder().encode(input.value);
+    let binary = "";
+    bytes.forEach(byte => binary += String.fromCharCode(byte));
+    return btoa(binary);
+  });
+
+  // JSON Formatter
+  attach("json-formatter", root => {
+    const input = textInput(root);
+    if (!input) throw new Error("JSON input is missing.");
+    return JSON.stringify(JSON.parse(input.value), null, 2);
+  });
+
+  // HTML Formatter (basic indentation)
+  attach("html-formatter", root => {
+    const input = textInput(root);
+    if (!input) throw new Error("HTML input is missing.");
+    const tokens = input.value.replace(/>\s*</g, ">\n<").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    let depth = 0;
+    const voidTags = /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)\b/i;
+    return tokens.map(token => {
+      if (/^<\//.test(token)) depth = Math.max(0, depth - 1);
+      const line = "  ".repeat(depth) + token;
+      const match = token.match(/^<([a-z0-9-]+)/i);
+      if (match && !/^<\//.test(token) && !/^<!/.test(token) &&
+          !/\/>$/.test(token) && !voidTags.test(match[1]) && !new RegExp("</" + match[1] + "\\s*>", "i").test(token)) depth++;
+      return line;
+    }).join("\n");
+  });
+
+  // CSS Minifier
+  attach("css-minifier", root => {
+    const input = textInput(root);
+    if (!input) throw new Error("CSS input is missing.");
+    return input.value.replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\s+/g, " ").replace(/\s*([{}:;,])\s*/g, "$1")
+      .replace(/;}/g, "}").trim();
+  });
+
+  // Time Zone Converter
+  attach("timezone-tool", root => {
+    const inputs = controls(root);
+    const dateInput = inputs.find(el => el.type === "datetime-local" || el.type === "date");
+    const zoneSelect = root.querySelector("select");
+    const date = dateInput && dateInput.value ? new Date(dateInput.value) : new Date();
+    const zone = zoneSelect ? zoneSelect.value : "Asia/Karachi";
+    if (isNaN(date.getTime())) throw new Error("Enter a valid date and time.");
+    try {
+      return new Intl.DateTimeFormat("en-US", {
+        dateStyle: "full", timeStyle: "long", timeZone: zone
+      }).format(date);
+    } catch (_) {
+      throw new Error("Please choose a valid time zone.");
+    }
+  });
+
+  // Image to Base64
+  attach("image-base64", async root => {
+    const file = fileInput(root)?.files[0];
+    if (!file) throw new Error("Choose an image first.");
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Could not read the image."));
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // Image format conversion
+  function imageConverter(id, mime, filename) {
+    attach(id, async root => {
+      const file = fileInput(root)?.files[0];
+      if (!file) throw new Error("Choose an image first.");
+      const img = await loadImage(file);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (mime === "image/jpeg") {
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.drawImage(img, 0, 0);
+      const blob = await canvasBlob(canvas, mime, 0.92);
+      return downloadBlob(blob, filename, "Download converted image");
+    });
+  }
+  imageConverter("png-jpg", "image/jpeg", "bk-image.jpg");
+  imageConverter("jpg-png", "image/png", "bk-image.png");
+
+  // Image Cropper: uses optional x/y/width/height fields if supplied;
+  // otherwise crops the centered square.
+  attach("image-cropper", async root => {
+    const file = fileInput(root)?.files[0];
+    if (!file) throw new Error("Choose an image first.");
+    const img = await loadImage(file);
+    const nums = Array.from(root.querySelectorAll('input[type="number"]')).map(el => Number(el.value));
+    let sx, sy, sw, sh;
+    if (nums.length >= 4 && nums.every(Number.isFinite) && nums[2] > 0 && nums[3] > 0) {
+      [sx, sy, sw, sh] = nums;
+    } else {
+      sw = sh = Math.min(img.naturalWidth, img.naturalHeight);
+      sx = (img.naturalWidth - sw) / 2;
+      sy = (img.naturalHeight - sh) / 2;
+    }
+    sx = Math.max(0, Math.min(img.naturalWidth - 1, sx));
+    sy = Math.max(0, Math.min(img.naturalHeight - 1, sy));
+    sw = Math.max(1, Math.min(img.naturalWidth - sx, sw));
+    sh = Math.max(1, Math.min(img.naturalHeight - sy, sh));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(sw); canvas.height = Math.round(sh);
+    canvas.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    return downloadBlob(await canvasBlob(canvas, "image/png"), "bk-cropped-image.png", "Download cropped image");
+  });
+
+  // PDF page counter
+  attach("pdf-page-counter", async root => {
+    const file = fileInput(root)?.files[0];
+    if (!file) throw new Error("Choose a PDF file first.");
+    if (!window.PDFLib) throw new Error("PDF library is not loaded. Refresh the page.");
+    const pdf = await PDFLib.PDFDocument.load(await file.arrayBuffer());
+    return "Total pages: " + pdf.getPageCount();
+  });
+
+  // Images to PDF
+  attach("images-pdf", async root => {
+    const files = Array.from(fileInput(root)?.files || []);
+    if (!files.length) throw new Error("Choose one or more images.");
+    if (!window.PDFLib) throw new Error("PDF library is not loaded. Refresh the page.");
+    const pdf = await PDFLib.PDFDocument.create();
+    for (const file of files) {
+      const bytes = await file.arrayBuffer();
+      let image;
+      if (file.type === "image/png") image = await pdf.embedPng(bytes);
+      else if (file.type === "image/jpeg") image = await pdf.embedJpg(bytes);
+      else {
+        const img = await loadImage(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        const jpg = await canvasBlob(canvas, "image/jpeg", 0.92);
+        image = await pdf.embedJpg(await jpg.arrayBuffer());
+      }
+      const page = pdf.addPage([image.width, image.height]);
+      page.drawImage(image, { x: 0, y: 0, width: image.width, height: image.height });
+    }
+    const bytes = await pdf.save();
+    return downloadBlob(new Blob([bytes], { type: "application/pdf" }), "bk-images.pdf", "Download PDF");
+  });
+
+  // PDF compressor: browser re-save / object-stream optimization only;
+  // it cannot guarantee a smaller file for every PDF.
+  attach("pdf-compressor", async root => {
+    const file = fileInput(root)?.files[0];
+    if (!file) throw new Error("Choose a PDF file first.");
+    if (!window.PDFLib) throw new Error("PDF library is not loaded. Refresh the page.");
+    const pdf = await PDFLib.PDFDocument.load(await file.arrayBuffer());
+    const bytes = await pdf.save({ useObjectStreams: true });
+    const blob = new Blob([bytes], { type: "application/pdf" });
+    const before = (file.size / 1024).toFixed(1);
+    const after = (blob.size / 1024).toFixed(1);
+    const wrap = document.createElement("div");
+    wrap.append("Original: " + before + " KB | Processed: " + after + " KB. ");
+    wrap.appendChild(downloadBlob(blob, "bk-processed.pdf", "Download processed PDF"));
+    return wrap;
+  });
+
+  // PDF to images requires PDF.js, which must be loaded in index.html.
+  attach("pdf-images", async () => {
+    if (!window.pdfjsLib) throw new Error("PDF-to-image needs PDF.js. Add the PDF.js library to index.html first.");
+    throw new Error("PDF.js is detected, but the page-rendering controls need to be configured in this tool section.");
+  });
+
+  // QR Scanner requires jsQR and camera/file scan controls.
+  attach("qr-scanner", async () => {
+    if (!window.jsQR) throw new Error("QR Scanner needs the jsQR library added to index.html.");
+    throw new Error("Add a camera or image input to the QR Scanner section to scan codes.");
+  });
+
+  // Stopwatch
+  const stopwatch = section("stopwatch");
+  if (stopwatch) {
+    const btns = Array.from(stopwatch.querySelectorAll("button"));
+    const out = outputFor(stopwatch);
+    if (btns.length >= 2 && out) {
+      let started = 0, elapsed = 0, interval = null;
+      const render = () => {
+        const total = elapsed + (interval ? Date.now() - started : 0);
+        const centis = Math.floor(total / 10) % 100;
+        const sec = Math.floor(total / 1000) % 60;
+        const min = Math.floor(total / 60000) % 60;
+        const hr = Math.floor(total / 3600000);
+        text(out, [hr, min, sec].map(n => String(n).padStart(2, "0")).join(":") + "." + String(centis).padStart(2, "0"));
+      };
+      btns[0].addEventListener("click", () => {
+        if (interval) return;
+        started = Date.now();
+        interval = setInterval(render, 50);
+      });
+      if (btns[1]) btns[1].addEventListener("click", () => {
+        if (interval) { elapsed += Date.now() - started; clearInterval(interval); interval = null; render(); }
+      });
+      if (btns[2]) btns[2].addEventListener("click", () => {
+        clearInterval(interval); interval = null; elapsed = 0; render();
+      });
+      render();
+    }
+  }
+
+  // Countdown Timer: first number input is minutes; second (if present) is seconds.
+  const countdown = section("countdown");
+  if (countdown) {
+    const nums = Array.from(countdown.querySelectorAll('input[type="number"]'));
+    const btns = Array.from(countdown.querySelectorAll("button"));
+    const out = outputFor(countdown);
+    if (nums.length && btns.length && out) {
+      let remaining = 0, interval = null;
+      const render = () => {
+        const m = Math.floor(remaining / 60), s = remaining % 60;
+        text(out, String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0"));
+      };
+      btns[0].addEventListener("click", () => {
+        clearInterval(interval);
+        remaining = Math.max(0, Number(nums[0].value) || 0) * 60 +
+          (nums[1] ? Math.max(0, Number(nums[1].value) || 0) : 0);
+        if (!remaining) { text(out, "Enter a time greater than zero."); return; }
+        render();
+        interval = setInterval(() => {
+          remaining--;
+          render();
+          if (remaining <= 0) { clearInterval(interval); interval = null; text(out, "Time is up!"); }
+        }, 1000);
+      });
+      if (btns[1]) btns[1].addEventListener("click", () => {
+        clearInterval(interval); interval = null; remaining = 0; render();
+      });
+    }
+  }
+
+  console.log("BK TOOLS: additional tool handlers initialized.");
+})();
+
