@@ -787,25 +787,66 @@ get("contactForm").addEventListener("submit", function (event) {
     return Array.from({ length: count }, () => paragraph).join("\n\n");
   });
 
-  // Base64 encoder / decoder
-  attach("base64-tool", root => {
-    const input = textInput(root);
-    if (!input) throw new Error("Text input is missing.");
-    const mode = selectValue(root, "encode").toLowerCase();
-    if (mode.includes("decode")) {
-      try {
-        const binary = atob(input.value.trim());
-        const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-        return new TextDecoder().decode(bytes);
-      } catch (_) {
-        throw new Error("Invalid Base64 text.");
+
+// Base64 encoder / decoder
+attach("base64-tool", root => {
+  const input = textInput(root);
+
+  if (!input) {
+    throw new Error("Text input is missing.");
+  }
+
+  const mode = selectValue(root, "encode").toLowerCase();
+  const text = input.value.trim();
+
+  // DECODE
+  if (mode.includes("decode")) {
+    try {
+      let encoded = text
+        .replace(/\s+/g, "")
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+      if (!encoded || encoded.length % 4 === 1) {
+        throw new Error("Invalid Base64");
       }
+
+      encoded = encoded.replace(/=+$/, "");
+      encoded += "=".repeat((4 - encoded.length % 4) % 4);
+
+      const binary = atob(encoded);
+
+      const bytes = Uint8Array.from(
+        binary,
+        character => character.charCodeAt(0)
+      );
+
+      return new TextDecoder("utf-8", {
+        fatal: true
+      }).decode(bytes);
+
+    } catch (error) {
+      throw new Error("Invalid Base64 text. Please check your input.");
     }
+  }
+
+  // ENCODE
+  try {
     const bytes = new TextEncoder().encode(input.value);
+
     let binary = "";
-    bytes.forEach(byte => binary += String.fromCharCode(byte));
+
+    bytes.forEach(byte => {
+      binary += String.fromCharCode(byte);
+    });
+
     return btoa(binary);
-  });
+
+  } catch (error) {
+    throw new Error("Unable to encode text.");
+  }
+});
+
 
   // JSON Formatter
   attach("json-formatter", root => {
