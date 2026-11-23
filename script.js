@@ -702,23 +702,61 @@ get("contactForm").addEventListener("submit", function (event) {
     canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not create the output file.")), type, quality);
   });
 
-  // Case Converter
-  attach("case-converter", root => {
-    const input = textInput(root);
-    if (!input) throw new Error("Text input is missing in the Case Converter section.");
-    const mode = selectValue(root, "upper").toLowerCase();
-    const value = input.value;
-    const converted = ({
-      upper: () => value.toUpperCase(),
-      uppercase: () => value.toUpperCase(),
-      lower: () => value.toLowerCase(),
-      lowercase: () => value.toLowerCase(),
-      title: () => value.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
-      "title case": () => value.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
-      sentence: () => value.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, c => c.toUpperCase())
-    }[mode] || (() => value.toUpperCase()))();
-    return converted || "(No text entered)";
-  });
+  // Case Converter - the HTML uses four separate buttons, not a select.
+  const caseRoot = section("case-converter");
+  if (caseRoot) {
+    const caseInput = byId("caseText");
+    const caseOutput = byId("caseResult");
+
+    const convertCase = mode => {
+      if (!caseInput || !caseOutput) return;
+      const value = caseInput.value;
+      let result = value;
+
+      if (mode === "upper") {
+        result = value.toUpperCase();
+      } else if (mode === "lower") {
+        result = value.toLowerCase();
+      } else if (mode === "title") {
+        result = value.toLowerCase().replace(/\b([a-z])/g, letter => letter.toUpperCase());
+      } else if (mode === "sentence") {
+        result = value.toLowerCase().replace(/(^\s*[a-z]|[.!?]\s+[a-z])/g,
+          match => match.toUpperCase());
+      }
+
+      caseOutput.value = result;
+      caseOutput.textContent = result;
+    };
+
+    const upperBtn = byId("uppercaseBtn");
+    const lowerBtn = byId("lowercaseBtn");
+    const titleBtn = byId("titlecaseBtn");
+    const sentenceBtn = byId("sentencecaseBtn");
+    const copyBtn = byId("copyCaseBtn");
+
+    if (upperBtn) upperBtn.addEventListener("click", () => convertCase("upper"));
+    if (lowerBtn) lowerBtn.addEventListener("click", () => convertCase("lower"));
+    if (titleBtn) titleBtn.addEventListener("click", () => convertCase("title"));
+    if (sentenceBtn) sentenceBtn.addEventListener("click", () => convertCase("sentence"));
+
+    if (copyBtn) {
+      copyBtn.addEventListener("click", async () => {
+        const value = caseOutput ? caseOutput.value : "";
+        if (!value) return;
+        try {
+          await navigator.clipboard.writeText(value);
+          copyBtn.textContent = "Copied!";
+          window.setTimeout(() => { copyBtn.textContent = "Copy Text"; }, 1500);
+        } catch (_) {
+          if (caseOutput) {
+            caseOutput.focus();
+            caseOutput.select();
+            document.execCommand("copy");
+          }
+        }
+      });
+    }
+  }
 
   // Text Reverser
   attach("text-reverser", root => {
