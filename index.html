@@ -1,248 +1,578 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="BK TOOLS - Free online calculators, QR generator, image tools, PDF tools and typing test.">
-  <meta name="theme-color" content="#155eef">
-  <title>BK TOOLS - Free Online Tools</title>
+
+  <title>BK TOOLS - Free Online Tools, Calculators & PDF Tools</title>
+  <meta name="description" content="BK TOOLS offers free online calculators, text tools, image tools, PDF tools, QR code generator and more.">
+  <meta name="keywords" content="free online tools, calculator, word counter, PDF tools, image compressor, QR generator">
+  <meta name="theme-color" content="#101828">
+
   <link rel="stylesheet" href="style.css">
-  <!-- QR and PDF libraries are loaded from CDNs; internet is required for these features. -->
+
+  <!-- External libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3245525J62"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3245525J62');
+  </script>
+
   <script src="script.js" defer></script>
 </head>
-  <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3245525J62"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-3245525J62');
-</script>
+
 <body>
-<header class="hero">
-  <h1>BK TOOLS</h1>
-  <p>Free Online Tools For Everyone</p>
+
+<header class="hero" id="home">
+  <div class="hero-content">
+    <div class="logo">BK <span>TOOLS</span></div>
+    <p>Your All-in-One Free Online Tools Platform</p>
+    <h1>Smart Tools. Simple Solutions.</h1>
+    <p>Free online tools for your everyday work. Fast, simple and easy to use.</p>
+
+    <a href="#all-tools" class="hero-button">Explore All Tools</a>
+  </div>
 </header>
 
 <nav class="navbar" aria-label="Main navigation">
-  <a href="#word">Word Counter</a>
-  <a href="#age">Age</a>
-  <a href="#calc">Calculator</a>
-  <a href="#percent">Percentage</a>
-  <a href="#password">Password</a>
-  <a href="#unit">Converter</a>
-  <a href="#qr">QR Code</a>
-  <a href="#image-compress">Compress Image</a>
-  <a href="#pdf">PDF Tools</a>
-  <a href="#typing">Typing Test</a>
-  <a href="#image-resize">Resize Image</a>
+  <a href="#home">Home</a>
+  <a href="#all-tools">All Tools</a>
+  <a href="#text-tools">Text Tools</a>
+  <a href="#calculators">Calculators</a>
+  <a href="#image-tools">Image Tools</a>
+  <a href="#pdf-tools">PDF Tools</a>
+  <a href="#about">About</a>
   <a href="#contact">Contact</a>
 </nav>
 
 <main class="container">
-  <section class="tool" id="word">
-    <h2>Word Counter</h2>
-    <textarea id="words" placeholder="Write or paste your text here..."></textarea>
-    <div class="stats">
-      <span id="wordResult">Words: 0</span>
-      <span id="charResult">Characters: 0</span>
-      <span id="charNoSpace">Without spaces: 0</span>
-    </div>
-    <button id="clearWords" class="secondary">Clear Text</button>
+
+  <!-- Welcome -->
+  <section class="welcome-section">
+    <h2>Welcome to BK TOOLS</h2>
+    <p>Discover useful free online tools in one place. Choose a tool, enter your information and get your result.</p>
+
+    <input
+      type="search"
+      id="toolSearch"
+      placeholder="Search tools..."
+      aria-label="Search tools"
+    >
   </section>
 
-  <section class="tool" id="age">
-    <h2>Age Calculator</h2>
-    <label for="dob">Date of Birth</label>
-    <input type="date" id="dob">
-    <button id="ageBtn">Calculate Age</button>
-    <p class="result" id="ageResult" aria-live="polite"></p>
+  <!-- Advertisement space: add approved AdSense code later -->
+  <div class="ad-container" id="ad-home">
+    <span>Advertisement</span>
+  </div>
+
+  <!-- ALL TOOLS -->
+  <section id="all-tools">
+    <h2 class="section-heading">Explore Our Tools</h2>
+
+    <!-- TEXT TOOLS -->
+    <section class="tool-category" id="text-tools">
+      <h2>Text Tools</h2>
+
+      <section class="tool" id="word">
+        <h2>Word Counter</h2>
+        <textarea id="words" placeholder="Write or paste your text here..."></textarea>
+        <div class="stats">
+          <span id="wordResult">Words: 0</span>
+          <span id="charResult">Characters: 0</span>
+          <span id="charNoSpace">Without spaces: 0</span>
+        </div>
+        <button id="clearWords" class="secondary">Clear Text</button>
+      </section>
+
+      <section class="tool" id="case-converter">
+        <h2>Case Converter</h2>
+        <textarea id="caseText" placeholder="Enter your text..."></textarea>
+        <button id="uppercaseBtn">UPPERCASE</button>
+        <button id="lowercaseBtn">lowercase</button>
+        <button id="titlecaseBtn">Title Case</button>
+        <button id="sentencecaseBtn">Sentence case</button>
+        <textarea id="caseResult" placeholder="Converted text..." readonly></textarea>
+        <button id="copyCaseBtn" class="secondary">Copy Text</button>
+      </section>
+
+      <section class="tool" id="text-reverser">
+        <h2>Text Reverser</h2>
+        <textarea id="reverseText" placeholder="Enter text to reverse..."></textarea>
+        <button id="reverseBtn">Reverse Text</button>
+        <textarea id="reverseResult" placeholder="Reversed text..." readonly></textarea>
+      </section>
+
+      <section class="tool" id="duplicate-remover">
+        <h2>Duplicate Line Remover</h2>
+        <textarea id="duplicateText" placeholder="Enter lines of text..."></textarea>
+        <button id="removeDuplicatesBtn">Remove Duplicate Lines</button>
+        <textarea id="duplicateResult" placeholder="Result..." readonly></textarea>
+      </section>
+
+      <section class="tool" id="lorem-generator">
+        <h2>Lorem Ipsum Generator</h2>
+        <input type="number" id="loremCount" min="1" max="50" value="3" placeholder="Number of paragraphs">
+        <button id="loremBtn">Generate Text</button>
+        <textarea id="loremResult" placeholder="Generated text..." readonly></textarea>
+      </section>
+
+      <section class="tool" id="base64-tool">
+        <h2>Base64 Encoder / Decoder</h2>
+        <textarea id="base64Text" placeholder="Enter text..."></textarea>
+        <button id="base64EncodeBtn">Encode</button>
+        <button id="base64DecodeBtn">Decode</button>
+        <textarea id="base64Result" placeholder="Result..." readonly></textarea>
+      </section>
+    </section>
+
+    <!-- CALCULATORS -->
+    <section class="tool-category" id="calculators">
+      <h2>Calculators & Converters</h2>
+
+      <section class="tool" id="age">
+        <h2>Age Calculator</h2>
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob">
+        <button id="ageBtn">Calculate Age</button>
+        <p class="result" id="ageResult" aria-live="polite"></p>
+      </section>
+
+      <section class="tool" id="calc">
+        <h2>Calculator</h2>
+        <input type="number" id="num1" placeholder="First Number" step="any">
+        <select id="operation">
+          <option value="+">Addition (+)</option>
+          <option value="-">Subtraction (-)</option>
+          <option value="*">Multiplication (*)</option>
+          <option value="/">Division (/)</option>
+        </select>
+        <input type="number" id="num2" placeholder="Second Number" step="any">
+        <button id="calcBtn">Calculate</button>
+        <p class="result" id="calcResult" aria-live="polite"></p>
+      </section>
+
+      <section class="tool" id="percent">
+        <h2>Percentage Calculator</h2>
+        <input type="number" id="part" placeholder="Obtained Number" step="any">
+        <input type="number" id="total" placeholder="Total Number" step="any">
+        <button id="percentBtn">Calculate Percentage</button>
+        <p class="result" id="percentResult" aria-live="polite"></p>
+      </section>
+
+      <section class="tool" id="password">
+        <h2>Password Generator</h2>
+        <label for="passLength">Password Length (4–64)</label>
+        <input type="number" id="passLength" value="12" min="4" max="64">
+        <div class="options">
+          <label><input type="checkbox" id="uppercase" checked> Uppercase</label>
+          <label><input type="checkbox" id="lowercase" checked> Lowercase</label>
+          <label><input type="checkbox" id="numbers" checked> Numbers</label>
+          <label><input type="checkbox" id="symbols" checked> Symbols</label>
+        </div>
+        <button id="passwordBtn">Generate Password</button>
+        <input type="text" id="passwordResult" placeholder="Your password" readonly>
+        <button id="copyBtn" class="secondary">Copy Password</button>
+        <p class="result" id="passwordMessage" aria-live="polite"></p>
+      </section>
+
+      <section class="tool" id="unit">
+        <h2>Unit Converter</h2>
+        <input type="number" id="unitValue" placeholder="Enter Value" step="any">
+        <select id="unitType">
+          <option value="km">Kilometers to Miles</option>
+          <option value="mile">Miles to Kilometers</option>
+          <option value="kg">Kilograms to Pounds</option>
+          <option value="lb">Pounds to Kilograms</option>
+          <option value="cm">Centimeters to Inches</option>
+          <option value="inch">Inches to Centimeters</option>
+          <option value="c">Celsius to Fahrenheit</option>
+          <option value="f">Fahrenheit to Celsius</option>
+        </select>
+        <button id="convertBtn">Convert</button>
+        <p class="result" id="unitResult" aria-live="polite"></p>
+      </section>
+
+      <section class="tool" id="timezone-tool">
+        <h2>Time Zone Converter</h2>
+        <label for="timezoneDate">Select Date and Time</label>
+        <input type="datetime-local" id="timezoneDate">
+        <label for="timezoneFrom">From Time Zone</label>
+        <select id="timezoneFrom">
+          <option value="Asia/Karachi">Pakistan</option>
+          <option value="Europe/London">London</option>
+          <option value="America/New_York">New York</option>
+          <option value="Asia/Dubai">Dubai</option>
+          <option value="Asia/Tokyo">Tokyo</option>
+        </select>
+        <label for="timezoneTo">To Time Zone</label>
+        <select id="timezoneTo">
+          <option value="Europe/London">London</option>
+          <option value="Asia/Karachi">Pakistan</option>
+          <option value="America/New_York">New York</option>
+          <option value="Asia/Dubai">Dubai</option>
+          <option value="Asia/Tokyo">Tokyo</option>
+        </select>
+        <button id="timezoneBtn">Convert Time</button>
+        <p class="result" id="timezoneResult"></p>
+      </section>
+    </section>
+
+    <!-- IMAGE TOOLS -->
+    <section class="tool-category" id="image-tools">
+      <h2>Image Tools</h2>
+
+      <section class="tool" id="image-compress">
+        <h2>Image Compressor</h2>
+        <p>Compress JPG, PNG or WebP images in your browser.</p>
+        <label for="compressFile">Choose Image</label>
+        <input type="file" id="compressFile" accept="image/*">
+        <label for="compressQuality">Quality (for JPG/WebP)</label>
+        <input type="range" id="compressQuality" min="20" max="95" value="75">
+        <span id="qualityValue">75%</span>
+        <button id="compressBtn">Compress Image</button>
+        <p id="compressInfo" class="result" aria-live="polite"></p>
+        <a id="compressDownload" class="download-link" hidden>Download Compressed Image</a>
+      </section>
+
+      <section class="tool" id="image-resize">
+        <h2>Image Resizer</h2>
+        <p>Change an image's width and height in pixels.</p>
+        <label for="resizeFile">Choose Image</label>
+        <input type="file" id="resizeFile" accept="image/*">
+        <div class="two-inputs">
+          <div>
+            <label for="resizeWidth">Width (px)</label>
+            <input type="number" id="resizeWidth" min="1" max="10000" placeholder="Width">
+          </div>
+          <div>
+            <label for="resizeHeight">Height (px)</label>
+            <input type="number" id="resizeHeight" min="1" max="10000" placeholder="Height">
+          </div>
+        </div>
+        <label class="check-line"><input type="checkbox" id="keepRatio" checked> Keep aspect ratio</label>
+        <button id="resizeBtn">Resize Image</button>
+        <p id="resizeInfo" class="result" aria-live="polite"></p>
+        <a id="resizeDownload" class="download-link" hidden>Download Resized Image</a>
+      </section>
+
+      <section class="tool" id="image-base64">
+        <h2>Image to Base64</h2>
+        <input type="file" id="base64ImageFile" accept="image/*">
+        <button id="imageBase64Btn">Convert Image</button>
+        <textarea id="imageBase64Result" placeholder="Base64 output..." readonly></textarea>
+        <button id="copyImageBase64Btn" class="secondary">Copy Base64</button>
+      </section>
+
+      <section class="tool" id="image-cropper">
+        <h2>Image Cropper</h2>
+        <input type="file" id="cropFile" accept="image/*">
+        <label for="cropWidth">Crop Width</label>
+        <input type="number" id="cropWidth" min="1" placeholder="Width">
+        <label for="cropHeight">Crop Height</label>
+        <input type="number" id="cropHeight" min="1" placeholder="Height">
+        <button id="cropBtn">Crop Image</button>
+        <div id="cropPreview"></div>
+        <a id="cropDownload" class="download-link" hidden>Download Cropped Image</a>
+      </section>
+
+      <section class="tool" id="png-jpg">
+        <h2>PNG to JPG Converter</h2>
+        <input type="file" id="pngJpgFile" accept="image/png">
+        <button id="pngJpgBtn">Convert to JPG</button>
+        <a id="pngJpgDownload" class="download-link" hidden>Download JPG</a>
+      </section>
+
+      <section class="tool" id="jpg-png">
+        <h2>JPG to PNG Converter</h2>
+        <input type="file" id="jpgPngFile" accept="image/jpeg,image/jpg">
+        <button id="jpgPngBtn">Convert to PNG</button>
+        <a id="jpgPngDownload" class="download-link" hidden>Download PNG</a>
+      </section>
+    </section>
+
+    <!-- QR AND PDF TOOLS -->
+    <section class="tool-category" id="pdf-tools">
+      <h2>QR Code & PDF Tools</h2>
+
+      <section class="tool" id="qr">
+        <h2>QR Code Generator</h2>
+        <p>Enter text or a website address to create a QR code.</p>
+        <input id="qrText" type="text" placeholder="Enter text or https://example.com">
+        <button id="qrBtn">Generate QR Code</button>
+        <div id="qrOutput" class="qr-output" aria-live="polite"></div>
+        <button id="qrDownload" class="secondary" hidden>Download QR Code</button>
+        <p class="hint">Do not put passwords or private information in a QR code.</p>
+        <p class="result" id="qrMessage"></p>
+      </section>
+
+      <section class="tool" id="qr-scanner">
+        <h2>QR Code Scanner</h2>
+        <input type="file" id="qrScanFile" accept="image/*">
+        <button id="qrScanBtn">Scan QR Code</button>
+        <p class="result" id="qrScanResult"></p>
+      </section>
+
+      <section class="tool" id="pdf">
+        <h2>PDF Tools</h2>
+
+        <h3>Merge PDF Files</h3>
+        <p>Select two or more PDF files to combine them into one PDF.</p>
+        <input type="file" id="mergeFiles" accept="application/pdf,.pdf" multiple>
+        <button id="mergeBtn">Merge PDFs</button>
+        <p id="mergeMessage" class="result" aria-live="polite"></p>
+        <a id="mergeDownload" class="download-link" hidden>Download Merged PDF</a>
+
+        <div class="sub-divider"></div>
+
+        <h3>Split PDF</h3>
+        <p>Split a PDF into separate one-page PDF files.</p>
+        <input type="file" id="splitFile" accept="application/pdf,.pdf">
+        <button id="splitBtn">Split Every Page</button>
+        <p id="splitMessage" class="result" aria-live="polite"></p>
+        <div id="splitDownloads" class="download-list"></div>
+        <p class="hint">Large files may take longer and use device memory.</p>
+      </section>
+
+      <section class="tool" id="pdf-page-counter">
+        <h2>PDF Page Counter</h2>
+        <input type="file" id="pageCounterFile" accept="application/pdf,.pdf">
+        <button id="pageCounterBtn">Count PDF Pages</button>
+        <p id="pageCounterResult" class="result"></p>
+      </section>
+
+      <section class="tool" id="pdf-images">
+        <h2>PDF to Images</h2>
+        <input type="file" id="pdfImageFile" accept="application/pdf,.pdf">
+        <button id="pdfImageBtn">Convert PDF to Images</button>
+        <div id="pdfImageResult"></div>
+      </section>
+
+      <section class="tool" id="images-pdf">
+        <h2>Images to PDF</h2>
+        <input type="file" id="imagesPdfFiles" accept="image/*" multiple>
+        <button id="imagesPdfBtn">Create PDF</button>
+        <a id="imagesPdfDownload" class="download-link" hidden>Download PDF</a>
+      </section>
+
+      <section class="tool" id="pdf-compressor">
+        <h2>PDF Compressor</h2>
+        <input type="file" id="pdfCompressFile" accept="application/pdf,.pdf">
+        <button id="pdfCompressBtn">Compress PDF</button>
+        <p id="pdfCompressResult" class="result"></p>
+        <a id="pdfCompressDownload" class="download-link" hidden>Download PDF</a>
+      </section>
+    </section>
+
+    <!-- DEVELOPER TOOLS -->
+    <section class="tool-category" id="developer-tools">
+      <h2>Developer Tools</h2>
+
+      <section class="tool" id="json-formatter">
+        <h2>JSON Formatter</h2>
+        <textarea id="jsonInput" placeholder="Paste JSON here..."></textarea>
+        <button id="jsonFormatBtn">Format JSON</button>
+        <button id="jsonMinifyBtn" class="secondary">Minify JSON</button>
+        <textarea id="jsonResult" placeholder="Formatted JSON..." readonly></textarea>
+      </section>
+
+      <section class="tool" id="html-formatter">
+        <h2>HTML Formatter</h2>
+        <textarea id="htmlInput" placeholder="Paste HTML code..."></textarea>
+        <button id="htmlFormatBtn">Format HTML</button>
+        <textarea id="htmlResult" placeholder="Formatted HTML..." readonly></textarea>
+      </section>
+
+      <section class="tool" id="css-minifier">
+        <h2>CSS Minifier</h2>
+        <textarea id="cssInput" placeholder="Paste CSS code..."></textarea>
+        <button id="cssMinifyBtn">Minify CSS</button>
+        <textarea id="cssResult" placeholder="Minified CSS..." readonly></textarea>
+      </section>
+    </section>
+
+    <!-- TIME TOOLS -->
+    <section class="tool-category" id="time-tools">
+      <h2>Time Tools</h2>
+
+      <section class="tool" id="stopwatch">
+        <h2>Stopwatch</h2>
+        <p id="stopwatchDisplay">00:00:00</p>
+        <button id="stopwatchStart">Start</button>
+        <button id="stopwatchStop" class="secondary">Stop</button>
+        <button id="stopwatchReset" class="secondary">Reset</button>
+      </section>
+
+      <section class="tool" id="countdown">
+        <h2>Countdown Timer</h2>
+        <input type="number" id="countdownMinutes" min="0" placeholder="Minutes">
+        <input type="number" id="countdownSeconds" min="0" max="59" placeholder="Seconds">
+        <p id="countdownDisplay">00:00</p>
+        <button id="countdownStart">Start Timer</button>
+        <button id="countdownStop" class="secondary">Stop</button>
+        <button id="countdownReset" class="secondary">Reset</button>
+      </section>
+    </section>
+
+    <!-- TYPING TEST -->
+    <section class="tool-category" id="typing-tools">
+      <h2>Typing Tools</h2>
+
+      <section class="tool" id="typing">
+        <h2>Typing Speed Test</h2>
+        <p id="typingSample" class="typing-sample">The quick brown fox jumps over the lazy dog. Practice typing every day to improve your speed and accuracy.</p>
+        <textarea id="typingInput" placeholder="Click Start Test, then type the text shown above..." disabled></textarea>
+        <div class="stats">
+          <span id="typingTime">Time: 60s</span>
+          <span id="typingWpm">WPM: 0</span>
+          <span id="typingAccuracy">Accuracy: 100%</span>
+        </div>
+        <button id="typingStart">Start Test</button>
+        <button id="typingReset" class="secondary">Reset</button>
+        <p id="typingMessage" class="result" aria-live="polite">Press Start Test when ready.</p>
+      </section>
+    </section>
+
   </section>
 
-  <section class="tool" id="calc">
-    <h2>Calculator</h2>
-    <input type="number" id="num1" placeholder="First Number" step="any">
-    <select id="operation">
-      <option value="+">Addition (+)</option>
-      <option value="-">Subtraction (-)</option>
-      <option value="*">Multiplication (*)</option>
-      <option value="/">Division (/)</option>
-    </select>
-    <input type="number" id="num2" placeholder="Second Number" step="any">
-    <button id="calcBtn">Calculate</button>
-    <p class="result" id="calcResult" aria-live="polite"></p>
-  </section>
+  <!-- Ad space between tools -->
+  <div class="ad-container" id="ad-middle">
+    <span>Advertisement</span>
+  </div>
 
-  <section class="tool" id="percent">
-    <h2>Percentage Calculator</h2>
-    <input type="number" id="part" placeholder="Obtained Number" step="any">
-    <input type="number" id="total" placeholder="Total Number" step="any">
-    <button id="percentBtn">Calculate Percentage</button>
-    <p class="result" id="percentResult" aria-live="polite"></p>
-  </section>
-
-  <section class="tool" id="password">
-    <h2>Password Generator</h2>
-    <label for="passLength">Password Length (4–64)</label>
-    <input type="number" id="passLength" value="12" min="4" max="64">
-    <div class="options">
-      <label><input type="checkbox" id="uppercase" checked> Uppercase</label>
-      <label><input type="checkbox" id="lowercase" checked> Lowercase</label>
-      <label><input type="checkbox" id="numbers" checked> Numbers</label>
-      <label><input type="checkbox" id="symbols" checked> Symbols</label>
-    </div>
-    <button id="passwordBtn">Generate Password</button>
-    <input type="text" id="passwordResult" placeholder="Your password" readonly>
-    <button id="copyBtn" class="secondary">Copy Password</button>
-    <p class="result" id="passwordMessage" aria-live="polite"></p>
-  </section>
-
-  <section class="tool" id="unit">
-    <h2>Unit Converter</h2>
-    <input type="number" id="unitValue" placeholder="Enter Value" step="any">
-    <select id="unitType">
-      <option value="km">Kilometers to Miles</option>
-      <option value="mile">Miles to Kilometers</option>
-      <option value="kg">Kilograms to Pounds</option>
-      <option value="lb">Pounds to Kilograms</option>
-      <option value="cm">Centimeters to Inches</option>
-      <option value="inch">Inches to Centimeters</option>
-      <option value="c">Celsius to Fahrenheit</option>
-      <option value="f">Fahrenheit to Celsius</option>
-    </select>
-    <button id="convertBtn">Convert</button>
-    <p class="result" id="unitResult" aria-live="polite"></p>
-  </section>
-
-  <section class="tool" id="qr">
-    <h2>QR Code Generator</h2>
-    <p>Enter text or a website address to create a QR code.</p>
-    <input id="qrText" type="text" placeholder="Enter text or https://example.com">
-    <button id="qrBtn">Generate QR Code</button>
-    <div id="qrOutput" class="qr-output" aria-live="polite"></div>
-    <button id="qrDownload" class="secondary" hidden>Download QR Code</button>
-    <p class="hint">QR generation runs in your browser using a loaded QR library. Do not put passwords or private information in a QR code.</p>
-    <p class="result" id="qrMessage"></p>
-  </section>
-
-  <section class="tool" id="image-compress">
-    <h2>Image Compressor</h2>
-    <p>Compress JPG, PNG or WebP images in your browser.</p>
-    <label for="compressFile">Choose Image</label>
-    <input type="file" id="compressFile" accept="image/*">
-    <label for="compressQuality">Quality (for JPG/WebP)</label>
-    <input type="range" id="compressQuality" min="20" max="95" value="75">
-    <span id="qualityValue">75%</span>
-    <button id="compressBtn">Compress Image</button>
-    <p id="compressInfo" class="result" aria-live="polite"></p>
-    <a id="compressDownload" class="download-link" hidden>Download Compressed Image</a>
-  </section>
-
-  <section class="tool" id="pdf">
-    <h2>PDF Tools</h2>
-    <h3>Merge PDF files</h3>
-    <p>Select two or more PDF files to combine them into one PDF.</p>
-    <input type="file" id="mergeFiles" accept="application/pdf,.pdf" multiple>
-    <button id="mergeBtn">Merge PDFs</button>
-    <p id="mergeMessage" class="result" aria-live="polite"></p>
-    <a id="mergeDownload" class="download-link" hidden>Download Merged PDF</a>
-
-    <div class="sub-divider"></div>
-
-    <h3>Split PDF</h3>
-    <p>Split a PDF into separate one-page PDF files.</p>
-    <input type="file" id="splitFile" accept="application/pdf,.pdf">
-    <button id="splitBtn">Split Every Page</button>
-    <p id="splitMessage" class="result" aria-live="polite"></p>
-    <div id="splitDownloads" class="download-list"></div>
-    <p class="hint">PDF processing happens in your browser. Large files may take longer and use device memory.</p>
-  </section>
-
-  <section class="tool" id="typing">
-    <h2>Typing Speed Test</h2>
-    <p id="typingSample" class="typing-sample">The quick brown fox jumps over the lazy dog. Practice typing every day to improve your speed and accuracy.</p>
-    <textarea id="typingInput" placeholder="Click Start Test, then type the text shown above..." disabled></textarea>
-    <div class="stats">
-      <span id="typingTime">Time: 60s</span>
-      <span id="typingWpm">WPM: 0</span>
-      <span id="typingAccuracy">Accuracy: 100%</span>
-    </div>
-    <button id="typingStart">Start Test</button>
-    <button id="typingReset" class="secondary">Reset</button>
-    <p id="typingMessage" class="result" aria-live="polite">Press Start Test when ready.</p>
-  </section>
-
-  <section class="tool" id="image-resize">
-    <h2>Image Resizer</h2>
-    <p>Change an image's width and height in pixels.</p>
-    <label for="resizeFile">Choose Image</label>
-    <input type="file" id="resizeFile" accept="image/*">
-    <div class="two-inputs">
-      <div>
-        <label for="resizeWidth">Width (px)</label>
-        <input type="number" id="resizeWidth" min="1" max="10000" placeholder="Width">
-      </div>
-      <div>
-        <label for="resizeHeight">Height (px)</label>
-        <input type="number" id="resizeHeight" min="1" max="10000" placeholder="Height">
-      </div>
-    </div>
-    <label class="check-line"><input type="checkbox" id="keepRatio" checked> Keep aspect ratio</label>
-    <button id="resizeBtn">Resize Image</button>
-    <p id="resizeInfo" class="result" aria-live="polite"></p>
-    <a id="resizeDownload" class="download-link" hidden>Download Resized Image</a>
-  </section>
-
+  <!-- ABOUT -->
   <section class="page" id="about">
-    <h2>About Us</h2>
-    <p>Welcome to BK TOOLS! BK TOOLS provides simple browser-based tools to help with everyday online tasks.</p>
-    <p>Available tools include calculators, QR code generation, image compression, PDF merge and split, typing speed test and image resizing.</p>
+    <h2>About BK TOOLS</h2>
+    <p>Welcome to BK TOOLS! Our goal is to provide simple and useful free online tools for everyday tasks.</p>
+    <p>Our platform includes calculators, text tools, image tools, PDF tools, QR code utilities, developer tools and more.</p>
+    <p>We aim to make online tasks easier with a simple and user-friendly experience.</p>
   </section>
 
+  <!-- CONTACT -->
   <section class="page" id="contact">
     <h2>Contact Us</h2>
-    <p>Have a question or suggestion? Contact us through WhatsApp.</p>
+    <p>Have a question, suggestion or feedback? Contact us through WhatsApp.</p>
+
     <form id="contactForm">
       <label for="contactName">Your Name</label>
       <input type="text" id="contactName" placeholder="Enter your name" required>
+
       <label for="contactMessage">Your Message</label>
       <textarea id="contactMessage" placeholder="Write your message..." required></textarea>
+
       <button type="submit">Send WhatsApp Message</button>
     </form>
+
     <div class="contact-info">
-      <h3>Our WhatsApp Number</h3>
-      <p>+923177459765</p>
+      <h3>Contact Information</h3>
+      <p>WhatsApp: +923177459765</p>
       <a class="whatsapp" href="https://wa.me/923177459765" target="_blank" rel="noopener noreferrer">Chat With Us on WhatsApp</a>
     </div>
   </section>
 
+  <!-- PRIVACY POLICY -->
   <section class="page" id="privacy">
     <h2>Privacy Policy</h2>
-    <h3>1. Browser Processing</h3>
-    <p>Most tools process files and text locally in your browser. Files are not uploaded by these tools to BK TOOLS servers.</p>
-    <h3>2. Third-Party Libraries</h3>
-    <p>QR and PDF features load software libraries from third-party content delivery networks. Those providers may receive standard connection information.</p>
-    <h3>3. Contact</h3>
-    <p>When you choose to contact us, WhatsApp opens with your message ready to send. You decide whether to send it.</p>
+
+    <h3>1. Information and Tools</h3>
+    <p>Some tools process text and files locally in your browser. The way information is handled may depend on the tool and any third-party services it uses.</p>
+
+    <h3>2. Third-Party Services</h3>
+    <p>Some features use third-party libraries loaded from external content delivery networks. These providers may receive standard technical connection information.</p>
+
+    <h3>3. Analytics</h3>
+    <p>BK TOOLS uses Google Analytics to understand website usage and improve the website.</p>
+
     <h3>4. Advertising</h3>
-    <p>Advertising may be added in the future. This policy should be updated if advertising or analytics services are introduced.</p>
-    <h3>5. Contact Details</h3>
+    <p>Advertising services may be used on this website. Third-party advertising providers may use cookies or similar technologies according to their own policies.</p>
+
+    <h3>5. Contact</h3>
+    <p>If you choose to contact us through WhatsApp, you decide what information to send.</p>
+
+    <h3>6. Policy Updates</h3>
+    <p>This Privacy Policy may be updated when website features or services change.</p>
+
+    <h3>7. Contact Details</h3>
     <p>WhatsApp: +923177459765</p>
     <p>Last Updated: November 2026</p>
   </section>
+
+  <!-- TERMS -->
+  <section class="page" id="terms">
+    <h2>Terms and Conditions</h2>
+    <p>By using BK TOOLS, you agree to use the website responsibly and lawfully.</p>
+
+    <h3>1. Use of Tools</h3>
+    <p>Our tools are provided for general convenience. You are responsible for checking the accuracy and suitability of results before relying on them.</p>
+
+    <h3>2. Prohibited Use</h3>
+    <p>You must not misuse the website, attempt to disrupt its operation or use it for unlawful activities.</p>
+
+    <h3>3. Availability</h3>
+    <p>We may update, change or discontinue website features at any time.</p>
+
+    <h3>4. Third-Party Services</h3>
+    <p>Some features may depend on third-party libraries or services. Their availability and policies are outside our control.</p>
+
+    <h3>5. Contact</h3>
+    <p>For questions about these terms, contact us through WhatsApp.</p>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <section class="page" id="disclaimer">
+    <h2>Disclaimer</h2>
+    <p>BK TOOLS provides online utilities for general informational and practical use.</p>
+    <p>We do not guarantee that every result will be error-free or suitable for every purpose. Always verify important calculations and converted files.</p>
+    <p>Use of third-party libraries and services may be subject to their own terms and privacy policies.</p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="page" id="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <h3>Are BK TOOLS free?</h3>
+    <p>Our tools are intended to be available free of charge.</p>
+
+    <h3>Do I need to create an account?</h3>
+    <p>You can use the available tools without creating an account.</p>
+
+    <h3>Are my files uploaded?</h3>
+    <p>Some tools process files in your browser. Check the instructions for each tool and remember that third-party services may work differently.</p>
+
+    <h3>How can I contact BK TOOLS?</h3>
+    <p>You can contact us through the WhatsApp link on our Contact page.</p>
+  </section>
+
 </main>
 
+<!-- FOOTER -->
 <footer>
   <h2>BK TOOLS</h2>
   <p>Free Online Tools For Everyone</p>
+  <p>Smart Tools. Simple Solutions.</p>
+
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a href="#all-tools">All Tools</a>
+    <a href="#about">About Us</a>
+    <a href="#contact">Contact</a>
+    <a href="#privacy">Privacy Policy</a>
+    <a href="#terms">Terms & Conditions</a>
+    <a href="#disclaimer">Disclaimer</a>
+    <a href="#faq">FAQ</a>
+  </div>
+
   <p>WhatsApp: +923177459765</p>
   <a href="https://wa.me/923177459765" target="_blank" rel="noopener noreferrer">WhatsApp Contact</a>
-  <a href="#about">About</a>
-  <a href="#contact">Contact</a>
-  <a href="#privacy">Privacy Policy</a>
+
   <p>© 2026 BK TOOLS | All Rights Reserved</p>
 </footer>
+
 </body>
 </html>
