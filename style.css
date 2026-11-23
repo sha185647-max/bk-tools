@@ -1,114 +1,269 @@
+
+/* =====================================
+   BK TOOLS - MODERN WEBSITE DESIGN
+   ===================================== */
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #06b6d4;
+  --dark: #101828;
+  --dark-light: #1e293b;
+  --background: #f4f7fc;
+  --white: #ffffff;
+  --text: #172554;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --success: #059669;
+  --shadow: 0 8px 30px rgba(15, 23, 42, 0.07);
+}
+
 * {
   box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 100px;
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f1f5ff;
-  color: #172554;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  color: var(--text);
+  line-height: 1.6;
 }
 
+/* =====================================
+   HERO SECTION
+   ===================================== */
+
 .hero {
-  background: linear-gradient(135deg, #155eef, #003bb5);
+  background:
+    radial-gradient(circle at top right, rgba(6, 182, 212, .25), transparent 35%),
+    linear-gradient(135deg, #101828, #172554 55%, #1d4ed8);
   color: white;
   text-align: center;
-  padding: 42px 15px;
+  padding: 65px 20px 75px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-content {
+  max-width: 850px;
+  margin: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.logo span {
+  color: #38bdf8;
 }
 
 .hero h1 {
-  font-size: 38px;
-  margin: 0;
-  letter-spacing: 2px;
+  font-size: clamp(30px, 5vw, 52px);
+  line-height: 1.2;
+  margin: 22px 0 12px;
+  letter-spacing: -1px;
 }
 
 .hero p {
-  margin-bottom: 0;
+  color: #dbeafe;
   font-size: 17px;
+  margin: 10px 0;
 }
 
-.navbar {
+.hero-button {
+  display: inline-block;
   background: white;
-  padding: 14px;
+  color: #1d4ed8;
+  text-decoration: none;
+  padding: 14px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-top: 22px;
+  transition: .25s;
+}
+
+.hero-button:hover {
+  background: #38bdf8;
+  color: #101828;
+  transform: translateY(-3px);
+}
+
+/* =====================================
+   NAVIGATION
+   ===================================== */
+
+.navbar {
+  background: rgba(255, 255, 255, .97);
+  padding: 12px 15px;
   text-align: center;
-  box-shadow: 0 2px 8px #ddd;
+  box-shadow: 0 3px 15px rgba(15, 23, 42, .08);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
+  backdrop-filter: blur(12px);
 }
 
 .navbar a {
   display: inline-block;
-  color: #155eef;
+  color: #334155;
   text-decoration: none;
-  margin: 7px;
+  margin: 6px 9px;
   font-weight: bold;
   font-size: 13px;
+  transition: .2s;
 }
 
 .navbar a:hover {
-  color: #003bb5;
-  text-decoration: underline;
+  color: var(--primary);
 }
 
+/* =====================================
+   MAIN CONTAINER
+   ===================================== */
+
 .container {
-  max-width: 950px;
-  margin: 25px auto;
+  max-width: 1150px;
+  margin: 30px auto;
   padding: 15px;
 }
 
-.tool,
-.page {
-  background: white;
-  padding: 25px;
-  margin-bottom: 23px;
-  border-radius: 15px;
-  box-shadow: 0 3px 15px #dbe5ff;
+.welcome-section {
+  text-align: center;
+  padding: 35px 20px;
+  margin-bottom: 25px;
+}
+
+.welcome-section h2 {
+  font-size: 30px;
+  color: var(--dark);
+}
+
+.welcome-section p {
+  color: var(--muted);
+  max-width: 650px;
+  margin: auto;
+}
+
+#toolSearch {
+  max-width: 550px;
+  margin: 25px auto 0;
+  padding: 16px 20px;
+  border-radius: 50px;
+  border: 2px solid #dbeafe;
+  box-shadow: 0 5px 20px rgba(37, 99, 235, .08);
+}
+
+/* =====================================
+   SECTION HEADINGS
+   ===================================== */
+
+.section-heading {
+  color: var(--dark);
+  font-size: 30px;
+  text-align: center;
+  margin: 35px 0;
+}
+
+.tool-category {
+  margin: 35px 0;
   scroll-margin-top: 100px;
 }
 
-h2 {
-  color: #155eef;
-  margin-top: 0;
+.tool-category > h2 {
+  color: var(--dark);
+  font-size: 25px;
+  padding-left: 14px;
+  border-left: 5px solid var(--primary);
+  margin: 35px 0 20px;
 }
 
-h3 {
-  color: #172554;
-  margin-top: 18px;
+/* =====================================
+   TOOL AND PAGE CARDS
+   ===================================== */
+
+.tool,
+.page {
+  background: var(--white);
+  padding: 28px;
+  margin-bottom: 25px;
+  border-radius: 17px;
+  border: 1px solid #e8eef8;
+  box-shadow: var(--shadow);
+  scroll-margin-top: 100px;
+  transition: transform .25s, box-shadow .25s;
 }
+
+.tool:hover,
+.page:hover {
+  box-shadow: 0 12px 35px rgba(15, 23, 42, .10);
+}
+
+.tool h2,
+.page h2 {
+  color: var(--dark);
+  font-size: 23px;
+  margin-top: 0;
+  margin-bottom: 17px;
+}
+
+.tool h3,
+.page h3 {
+  color: #1e40af;
+  margin-top: 22px;
+}
+
+.tool p,
+.page p {
+  color: #64748b;
+}
+
+/* =====================================
+   INPUTS
+   ===================================== */
 
 input:not([type="checkbox"]):not([type="range"]),
 textarea,
 select {
   display: block;
   width: 100%;
-  padding: 13px;
-  margin: 10px 0;
-  border: 1px solid #b8c9ed;
-  border-radius: 8px;
-  font-size: 16px;
-  background: white;
+  padding: 14px;
+  margin: 12px 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
   color: #172554;
+  font-family: inherit;
+  transition: .2s;
 }
 
 input[type="file"] {
-  padding: 10px !important;
+  padding: 11px !important;
+  background: #f8fafc;
 }
 
 input[type="range"] {
   width: 100%;
-  accent-color: #155eef;
+  accent-color: var(--primary);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  outline: 2px solid #155eef;
-  border-color: #155eef;
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
 }
 
 textarea {
@@ -119,28 +274,41 @@ textarea {
 label {
   font-weight: bold;
   display: block;
-  margin-top: 12px;
+  margin-top: 14px;
+  color: #334155;
 }
 
+/* =====================================
+   BUTTONS
+   ===================================== */
+
 button {
-  background: #155eef;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
-  border: 0;
-  padding: 12px 20px;
-  border-radius: 8px;
+  border: none;
+  padding: 13px 21px;
+  border-radius: 9px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin: 8px 6px 0 0;
+  transition: .25s;
 }
 
 button:hover {
-  background: #003bb5;
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 99, 235, .2);
+}
+
+button:active {
+  transform: scale(.98);
 }
 
 button:disabled {
   opacity: .55;
   cursor: not-allowed;
+  transform: none;
 }
 
 .secondary {
@@ -151,9 +319,13 @@ button:disabled {
   background: #334155;
 }
 
+/* =====================================
+   RESULTS AND STATS
+   ===================================== */
+
 .result {
   font-weight: bold;
-  color: #087443;
+  color: var(--success);
   margin-top: 15px;
   overflow-wrap: anywhere;
 }
@@ -161,7 +333,7 @@ button:disabled {
 .hint {
   color: #64748b;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .stats {
@@ -172,18 +344,24 @@ button:disabled {
 }
 
 .stats span {
-  background: #edf3ff;
-  padding: 10px 14px;
-  border-radius: 8px;
+  background: #eff6ff;
+  padding: 11px 15px;
+  border-radius: 9px;
   font-weight: bold;
-  color: #155eef;
+  color: #1d4ed8;
+  border: 1px solid #dbeafe;
 }
 
+/* =====================================
+   CHECKBOX OPTIONS
+   ===================================== */
+
 .options {
-  background: #f5f8ff;
-  padding: 12px;
-  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+  border-radius: 10px;
   margin: 12px 0;
+  border: 1px solid var(--border);
 }
 
 .options label,
@@ -199,11 +377,15 @@ button:disabled {
 .check-line input {
   width: 17px;
   height: 17px;
-  accent-color: #155eef;
+  accent-color: var(--primary);
 }
 
+/* =====================================
+   QR CODE
+   ===================================== */
+
 .qr-output {
-  margin-top: 18px;
+  margin-top: 20px;
   min-height: 10px;
 }
 
@@ -213,61 +395,100 @@ button:disabled {
   max-width: 100%;
   height: auto;
   margin: 0 auto;
-  padding: 10px;
+  padding: 12px;
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
+
+/* =====================================
+   DOWNLOAD LINKS
+   ===================================== */
 
 .download-link {
   display: inline-block;
   margin-top: 14px;
-  padding: 11px 16px;
-  background: #087443;
+  padding: 12px 17px;
+  background: #059669;
   color: white;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 9px;
   font-weight: bold;
+  transition: .2s;
 }
 
 .download-link:hover {
-  background: #065f36;
-}
-
-.sub-divider {
-  border-top: 1px solid #dbe5ff;
-  margin: 25px 0;
+  background: #047857;
 }
 
 .download-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 15px;
 }
 
 .download-list a {
   display: inline-block;
-  padding: 9px 12px;
-  background: #edf3ff;
-  color: #155eef;
-  border-radius: 7px;
+  padding: 10px 14px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
 }
 
+/* =====================================
+   TYPING TEST
+   ===================================== */
+
 .typing-sample {
-  background: #edf3ff;
-  border-left: 4px solid #155eef;
-  padding: 15px;
-  line-height: 1.8;
-  border-radius: 7px;
+  background: #eff6ff;
+  border-left: 5px solid var(--primary);
+  padding: 17px;
+  line-height: 1.9;
+  border-radius: 8px;
   user-select: none;
+  color: #334155;
 }
+
+/* =====================================
+   TWO COLUMN INPUTS
+   ===================================== */
 
 .two-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 15px;
+}
+
+/* =====================================
+   ADVERTISEMENT SPACES
+   ===================================== */
+
+.ad-container {
+  min-height: 100px;
+  max-width: 100%;
+  margin: 25px auto;
+  padding: 15px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #94a3b8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* =====================================
+   PAGE SECTIONS
+   ===================================== */
+
+.page {
+  margin-top: 35px;
 }
 
 .page p {
@@ -279,47 +500,139 @@ button:disabled {
   margin: 9px 0;
 }
 
+/* =====================================
+   CONTACT
+   ===================================== */
+
 .contact-info {
-  background: #f1f5ff;
-  padding: 18px;
-  border-radius: 10px;
-  margin-top: 20px;
+  background: #f0fdf4;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 22px;
+  border: 1px solid #bbf7d0;
 }
 
 .whatsapp {
   display: inline-block;
-  background: #128c4a;
+  background: #16a34a;
   color: white;
-  padding: 13px 18px;
-  border-radius: 8px;
+  padding: 13px 19px;
+  border-radius: 9px;
   text-decoration: none;
   font-weight: bold;
+  transition: .2s;
 }
 
 .whatsapp:hover {
-  background: #086c37;
+  background: #15803d;
 }
 
+/* =====================================
+   FOOTER
+   ===================================== */
+
 footer {
-  background: #155eef;
+  background: linear-gradient(135deg, #101828, #172554);
   color: white;
   text-align: center;
-  padding: 25px 10px;
+  padding: 45px 20px 25px;
+  margin-top: 50px;
 }
 
 footer h2 {
   color: white;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+footer p {
+  color: #cbd5e1;
 }
 
 footer a {
-  color: white;
+  color: #bfdbfe;
   text-decoration: none;
-  margin: 8px;
+  margin: 7px 10px;
   display: inline-block;
+  font-size: 14px;
 }
 
 footer a:hover {
+  color: white;
   text-decoration: underline;
+}
+
+.footer-links {
+  max-width: 750px;
+  margin: 20px auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* =====================================
+   ACCESSIBILITY
+   ===================================== */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid #38bdf8;
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* =====================================
+   RESPONSIVE MOBILE DESIGN
+   ===================================== */
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 48px 15px 55px;
+  }
+
+  .hero h1 {
+    font-size: 34px;
+  }
+
+  .logo {
+    font-size: 31px;
+  }
+
+  .navbar {
+    padding: 10px 5px;
+  }
+
+  .navbar a {
+    font-size: 12px;
+    margin: 5px 6px;
+  }
+
+  .container {
+    padding: 10px;
+    margin: 15px auto;
+  }
+
+  .tool,
+  .page {
+    padding: 20px;
+    border-radius: 13px;
+  }
+
+  .welcome-section h2 {
+    font-size: 25px;
+  }
+
+  .section-heading {
+    font-size: 25px;
+  }
+
+  .tool-category > h2 {
+    font-size: 22px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -327,27 +640,38 @@ footer a:hover {
     font-size: 29px;
   }
 
+  .hero p {
+    font-size: 15px;
+  }
+
   .navbar a {
-    font-size: 12px;
-    margin: 5px;
+    font-size: 11px;
+    margin: 5px 4px;
   }
 
   .container {
-    padding: 10px;
+    padding: 8px;
   }
 
   .tool,
   .page {
-    padding: 18px;
+    padding: 17px;
+    margin-bottom: 18px;
+  }
+
+  .tool h2,
+  .page h2 {
+    font-size: 21px;
   }
 
   button {
     width: 100%;
-    margin-right: 0;
+    margin: 8px 0 0;
   }
 
   .stats {
     flex-direction: column;
+    gap: 8px;
   }
 
   .two-inputs {
@@ -358,5 +682,13 @@ footer a:hover {
   .whatsapp {
     width: 100%;
     text-align: center;
+  }
+
+  .ad-container {
+    min-height: 80px;
+  }
+
+  footer {
+    padding: 35px 12px 20px;
   }
 }
