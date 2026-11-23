@@ -788,21 +788,36 @@ get("contactForm").addEventListener("submit", function (event) {
   });
 
 
-// Base64 encoder / decoder
-attach("base64-tool", root => {
-  const input = textInput(root);
 
-  if (!input) {
-    throw new Error("Text input is missing.");
+// Base64 Encoder / Decoder - BK TOOLS
+attach("base64-tool", root => {
+  const input = root.querySelector("#base64Text");
+  const output = root.querySelector("#base64Result");
+  const encodeBtn = root.querySelector("#base64EncodeBtn");
+  const decodeBtn = root.querySelector("#base64DecodeBtn");
+
+  if (!input || !output || !encodeBtn || !decodeBtn) {
+    throw new Error("Base64 HTML elements missing.");
   }
 
-  const mode = selectValue(root, "encode").toLowerCase();
-  const text = input.value.trim();
-
-  // DECODE
-  if (mode.includes("decode")) {
+  encodeBtn.addEventListener("click", () => {
     try {
-      let encoded = text
+      const bytes = new TextEncoder().encode(input.value);
+      let binary = "";
+
+      bytes.forEach(byte => {
+        binary += String.fromCharCode(byte);
+      });
+
+      output.value = btoa(binary);
+    } catch (error) {
+      output.value = "Encoding failed!";
+    }
+  });
+
+  decodeBtn.addEventListener("click", () => {
+    try {
+      let encoded = input.value.trim()
         .replace(/\s+/g, "")
         .replace(/-/g, "+")
         .replace(/_/g, "/");
@@ -821,30 +836,14 @@ attach("base64-tool", root => {
         character => character.charCodeAt(0)
       );
 
-      return new TextDecoder("utf-8", {
+      output.value = new TextDecoder("utf-8", {
         fatal: true
       }).decode(bytes);
 
     } catch (error) {
-      throw new Error("Invalid Base64 text. Please check your input.");
+      output.value = "Invalid Base64 text!";
     }
-  }
-
-  // ENCODE
-  try {
-    const bytes = new TextEncoder().encode(input.value);
-
-    let binary = "";
-
-    bytes.forEach(byte => {
-      binary += String.fromCharCode(byte);
-    });
-
-    return btoa(binary);
-
-  } catch (error) {
-    throw new Error("Unable to encode text.");
-  }
+  });
 });
 
 
