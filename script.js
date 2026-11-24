@@ -348,15 +348,15 @@ get("compressBtn").addEventListener("click", async function () {
     ctx.drawImage(img, 0, 0);
 
     const quality = Number(get("compressQuality").value) / 100;
-    const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
+    const outputType = "image/webp";
     const blob = await canvasToBlob(canvas, outputType, quality);
-    const extension = outputType === "image/png" ? "png" : "jpg";
+    const extension = "webp";
     const originalKB = (file.size / 1024).toFixed(1);
     const newKB = (blob.size / 1024).toFixed(1);
     const saved = file.size > 0 ? ((1 - blob.size / file.size) * 100).toFixed(1) : "0";
 
     setDownloadLink("compressDownload", blob, "bk-compressed-image." + extension);
-    show("compressInfo", "Original: " + originalKB + " KB | New: " + newKB + " KB | Size change: " + saved + "%");
+    show("compressInfo", "Original: " + originalKB + " KB | Compressed: " + newKB + " KB | Size change: " + saved + "%. Output format: WebP.");
   } catch (error) {
     show("compressInfo", error.message || "Compression failed.");
   } finally {
@@ -671,16 +671,33 @@ get("contactForm").addEventListener("submit", function (event) {
     const root = section(id);
     if (!root) return;
     const button = buttonFor(root);
-    const out = outputFor(root);
-    if (!button || !out) return;
+    if (!button) return;
+    let out = outputFor(root);
+    if (!out) {
+      out = document.createElement("div");
+      out.className = "tool-result";
+      out.setAttribute("aria-live", "polite");
+      root.appendChild(out);
+    }
     button.addEventListener("click", async () => {
       try {
-        out.replaceChildren();
+        if ("value" in out) out.value = "";
+        else out.replaceChildren();
         const result = await handler(root, controls(root), out);
-        if (result instanceof Node) out.appendChild(result);
-        else if (result !== undefined && result !== null) text(out, String(result));
+        if (result instanceof Node) {
+          if ("value" in out) {
+            out.insertAdjacentElement("afterend", result);
+          } else {
+            out.appendChild(result);
+          }
+        } else if (result !== undefined && result !== null) {
+          if ("value" in out) out.value = String(result);
+          else text(out, String(result));
+        }
       } catch (err) {
-        text(out, err && err.message ? err.message : "Something went wrong. Please try again.");
+        const message = err && err.message ? err.message : "Something went wrong. Please try again.";
+        if ("value" in out) out.value = message;
+        else text(out, message);
       }
     });
   };
@@ -787,65 +804,36 @@ get("contactForm").addEventListener("submit", function (event) {
     return Array.from({ length: count }, () => paragraph).join("\n\n");
   });
 
-
-
-// Base64 Encoder / Decoder - BK TOOLS
-attach("base64-tool", root => {
-  const input = root.querySelector("#base64Text");
-  const output = root.querySelector("#base64Result");
-  const encodeBtn = root.querySelector("#base64EncodeBtn");
-  const decodeBtn = root.querySelector("#base64DecodeBtn");
-
-  if (!input || !output || !encodeBtn || !decodeBtn) {
-    throw new Error("Base64 HTML elements missing.");
-  }
-
-  encodeBtn.addEventListener("click", () => {
-    try {
-      const bytes = new TextEncoder().encode(input.value);
-      let binary = "";
-
-      bytes.forEach(byte => {
-        binary += String.fromCharCode(byte);
-      });
-
-      output.value = btoa(binary);
-    } catch (error) {
-      output.value = "Encoding failed!";
-    }
-  });
-
-  decodeBtn.addEventListener("click", () => {
-    try {
-      let encoded = input.value.trim()
-        .replace(/\s+/g, "")
-        .replace(/-/g, "+")
-        .replace(/_/g, "/");
-
-      if (!encoded || encoded.length % 4 === 1) {
-        throw new Error("Invalid Base64");
+  // Base64 Encoder / Decoder - initialized immediately on page load.
+  const base64Input = byId("base64Text");
+  const base64Output = byId("base64Result");
+  const base64Encode = byId("base64EncodeBtn");
+  const base64Decode = byId("base64DecodeBtn");
+  if (base64Input && base64Output && base64Encode && base64Decode) {
+    base64Encode.addEventListener("click", () => {
+      try {
+        const bytes = new TextEncoder().encode(base64Input.value);
+        let binary = "";
+        bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+        base64Output.value = btoa(binary);
+      } catch (_) {
+        base64Output.value = "Encoding failed!";
       }
-
-      encoded = encoded.replace(/=+$/, "");
-      encoded += "=".repeat((4 - encoded.length % 4) % 4);
-
-      const binary = atob(encoded);
-
-      const bytes = Uint8Array.from(
-        binary,
-        character => character.charCodeAt(0)
-      );
-
-      output.value = new TextDecoder("utf-8", {
-        fatal: true
-      }).decode(bytes);
-
-    } catch (error) {
-      output.value = "Invalid Base64 text!";
-    }
-  });
-});
-
+    });
+    base64Decode.addEventListener("click", () => {
+      try {
+        let encoded = base64Input.value.trim().replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
+        if (!encoded || encoded.length % 4 === 1) throw new Error("Invalid Base64");
+        encoded = encoded.replace(/=+$/, "");
+        encoded += "=".repeat((4 - encoded.length % 4) % 4);
+        const binary = atob(encoded);
+        const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+        base64Output.value = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      } catch (_) {
+        base64Output.value = "Invalid Base64 text!";
+      }
+    });
+  }
 
   // JSON Formatter
   attach("json-formatter", root => {
@@ -854,21 +842,45 @@ attach("base64-tool", root => {
     return JSON.stringify(JSON.parse(input.value), null, 2);
   });
 
-  // HTML Formatter (basic indentation)
+  // Minify JSON button (separate button in the same HTML section)
+  const jsonMinifyButton = byId("jsonMinifyBtn");
+  if (jsonMinifyButton) {
+    jsonMinifyButton.addEventListener("click", () => {
+      const input = byId("jsonInput");
+      const output = byId("jsonResult");
+      try {
+        if (!input.value.trim()) throw new Error("Paste JSON code first.");
+        output.value = JSON.stringify(JSON.parse(input.value));
+      } catch (error) {
+        output.value = error instanceof SyntaxError ? "Invalid JSON. Please check your code." : error.message;
+      }
+    });
+  }
+
+  // HTML Formatter
   attach("html-formatter", root => {
     const input = textInput(root);
-    if (!input) throw new Error("HTML input is missing.");
-    const tokens = input.value.replace(/>\s*</g, ">\n<").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (!input || !input.value.trim()) throw new Error("Paste HTML code first.");
+    const source = input.value
+      .replace(/>\s*</g, ">\n<")
+      .replace(/([^\s])(<)/g, "$1\n$2");
+    const lines = source.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    const voidTags = new Set(["area","base","br","col","embed","hr","img","input","link","meta","param","source","track","wbr"]);
+    const result = [];
     let depth = 0;
-    const voidTags = /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)\b/i;
-    return tokens.map(token => {
-      if (/^<\//.test(token)) depth = Math.max(0, depth - 1);
-      const line = "  ".repeat(depth) + token;
-      const match = token.match(/^<([a-z0-9-]+)/i);
-      if (match && !/^<\//.test(token) && !/^<!/.test(token) &&
-          !/\/>$/.test(token) && !voidTags.test(match[1]) && !new RegExp("</" + match[1] + "\\s*>", "i").test(token)) depth++;
-      return line;
-    }).join("\n");
+    for (const line of lines) {
+      const closing = /^<\//.test(line);
+      const opening = /^<[a-z][\w:-]*(?:\s|>|\/)/i.test(line);
+      const tagMatch = line.match(/^<([a-z][\w:-]*)/i);
+      const tag = tagMatch ? tagMatch[1].toLowerCase() : "";
+      if (closing) depth = Math.max(0, depth - 1);
+      result.push("  ".repeat(depth) + line);
+      const selfClosing = /\/>$/.test(line);
+      const hasSameLineClose = tag && new RegExp("</\s*" + tag + "\s*>", "i").test(line);
+      if (opening && !closing && !line.startsWith("<!") && !line.startsWith("<?") &&
+          !selfClosing && !voidTags.has(tag) && !hasSameLineClose) depth++;
+    }
+    return result.join("\n");
   });
 
   // CSS Minifier
@@ -931,28 +943,24 @@ attach("base64-tool", root => {
   imageConverter("png-jpg", "image/jpeg", "bk-image.jpg");
   imageConverter("jpg-png", "image/png", "bk-image.png");
 
-  // Image Cropper: uses optional x/y/width/height fields if supplied;
-  // otherwise crops the centered square.
+  // Image Cropper: centered crop using the requested width and height.
   attach("image-cropper", async root => {
     const file = fileInput(root)?.files[0];
     if (!file) throw new Error("Choose an image first.");
     const img = await loadImage(file);
-    const nums = Array.from(root.querySelectorAll('input[type="number"]')).map(el => Number(el.value));
-    let sx, sy, sw, sh;
-    if (nums.length >= 4 && nums.every(Number.isFinite) && nums[2] > 0 && nums[3] > 0) {
-      [sx, sy, sw, sh] = nums;
-    } else {
-      sw = sh = Math.min(img.naturalWidth, img.naturalHeight);
-      sx = (img.naturalWidth - sw) / 2;
-      sy = (img.naturalHeight - sh) / 2;
-    }
-    sx = Math.max(0, Math.min(img.naturalWidth - 1, sx));
-    sy = Math.max(0, Math.min(img.naturalHeight - 1, sy));
-    sw = Math.max(1, Math.min(img.naturalWidth - sx, sw));
-    sh = Math.max(1, Math.min(img.naturalHeight - sy, sh));
+    const fields = Array.from(root.querySelectorAll('input[type="number"]'));
+    let cropW = Number(fields[0]?.value);
+    let cropH = Number(fields[1]?.value);
+    if (!Number.isFinite(cropW) || cropW <= 0) cropW = Math.min(img.naturalWidth, img.naturalHeight);
+    if (!Number.isFinite(cropH) || cropH <= 0) cropH = cropW;
+    cropW = Math.min(Math.round(cropW), img.naturalWidth);
+    cropH = Math.min(Math.round(cropH), img.naturalHeight);
+    const sx = Math.floor((img.naturalWidth - cropW) / 2);
+    const sy = Math.floor((img.naturalHeight - cropH) / 2);
     const canvas = document.createElement("canvas");
-    canvas.width = Math.round(sw); canvas.height = Math.round(sh);
-    canvas.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    canvas.width = cropW;
+    canvas.height = cropH;
+    canvas.getContext("2d").drawImage(img, sx, sy, cropW, cropH, 0, 0, cropW, cropH);
     return downloadBlob(await canvasBlob(canvas, "image/png"), "bk-cropped-image.png", "Download cropped image");
   });
 
@@ -995,7 +1003,10 @@ attach("base64-tool", root => {
   // it cannot guarantee a smaller file for every PDF.
   attach("pdf-compressor", async root => {
     const file = fileInput(root)?.files[0];
-    if (!file) throw new Error("Choose a PDF file first.");
+    if (!file) throw new Error("Choose a PDF file first (not an image).");
+    if (file.type && file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      throw new Error("PDF Compressor accepts PDF files only. Use Image Compressor for pictures.");
+    }
     if (!window.PDFLib) throw new Error("PDF library is not loaded. Refresh the page.");
     const pdf = await PDFLib.PDFDocument.load(await file.arrayBuffer());
     const bytes = await pdf.save({ useObjectStreams: true });
@@ -1008,16 +1019,59 @@ attach("base64-tool", root => {
     return wrap;
   });
 
-  // PDF to images requires PDF.js, which must be loaded in index.html.
-  attach("pdf-images", async () => {
-    if (!window.pdfjsLib) throw new Error("PDF-to-image needs PDF.js. Add the PDF.js library to index.html first.");
-    throw new Error("PDF.js is detected, but the page-rendering controls need to be configured in this tool section.");
+  // Configure the matching PDF.js worker.
+  if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+
+  // PDF to images (requires PDF.js library in index.html).
+  attach("pdf-images", async root => {
+    const file = fileInput(root)?.files[0];
+    if (!file) throw new Error("Choose a PDF file first.");
+    if (!window.pdfjsLib) throw new Error("PDF.js library is not loaded. Refresh the page after adding it to index.html.");
+    const pdfjs = window.pdfjsLib;
+    const bytes = await file.arrayBuffer();
+    const pdf = await pdfjs.getDocument({ data: bytes }).promise;
+    const wrap = document.createElement("div");
+    for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+      const page = await pdf.getPage(pageNo);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+      const img = document.createElement("img");
+      img.src = canvas.toDataURL("image/png");
+      img.alt = "PDF page " + pageNo;
+      img.style.maxWidth = "100%";
+      img.style.display = "block";
+      img.style.margin = "12px 0";
+      wrap.append("Page " + pageNo + " ");
+      wrap.appendChild(img);
+      const blob = await canvasBlob(canvas, "image/png");
+      wrap.appendChild(downloadBlob(blob, "bk-pdf-page-" + pageNo + ".png", "Download page " + pageNo));
+    }
+    return wrap;
   });
 
-  // QR Scanner requires jsQR and camera/file scan controls.
-  attach("qr-scanner", async () => {
-    if (!window.jsQR) throw new Error("QR Scanner needs the jsQR library added to index.html.");
-    throw new Error("Add a camera or image input to the QR Scanner section to scan codes.");
+  // QR Scanner from an uploaded QR image (requires jsQR library in index.html).
+  attach("qr-scanner", async root => {
+    const file = fileInput(root)?.files[0];
+    if (!file) throw new Error("Choose a QR code image first.");
+    if (!window.jsQR) throw new Error("QR scanner library is not loaded. Refresh the page after adding it to index.html.");
+    const img = await loadImage(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = window.jsQR(pixels.data, pixels.width, pixels.height);
+    if (!code) throw new Error("No QR code found in this image. Try a clearer picture.");
+    const result = document.createElement("p");
+    result.textContent = "Scanned result: " + code.data;
+    return result;
   });
 
   // Stopwatch - use the exact IDs from index.html.
@@ -1168,4 +1222,3 @@ attach("base64-tool", root => {
 
   console.log("BK TOOLS: additional tool handlers initialized.");
 })();
-
